@@ -1,11 +1,12 @@
 <script setup>
 import { User, Lock } from '@element-plus/icons-vue'
-import { ref, reactive } from 'vue'
+import { ref, reactive,onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import {onBeforeUnmount} from 'vue'
+import {getCodeService} from "@/api"
 const imgUrl=new URL('../../../public/login-head.png',import.meta.url).href
 const form = ref()
+const timer=ref()
 const isRegister = ref(false)
 const countdown=reactive({
   validText:'获取验证码',
@@ -58,12 +59,12 @@ const countdownChange=()=>{
  if (flag) {return}
  if(validFn()){  
   
-  const time = setInterval(() => {
+  timer.value = setInterval(() => {
     if (countdown.time <= 0) {
       countdown.validText = '获取验证码'
       countdown.time = 60
       flag = false
-      clearInterval(time)
+      clearInterval(timer.value)
     } else {
       countdown.time -= 1
       countdown.validText = `剩余${countdown.time}s`
@@ -71,6 +72,11 @@ const countdownChange=()=>{
   }, 1000)
   flag = true
   console.log('发送短信')}
+  getCodeService({tel:formModel.username}).then(({data})=>{
+    console.log(data);
+  }
+
+  )
 }
 
 const register=()=>{
@@ -82,7 +88,10 @@ const login=()=>{
 
 
 onBeforeUnmount(()=>{
-  clearInterval(time)
+  if (timer.value) {
+    clearInterval(timer.value)
+    timer.value = null
+  }
 })
 </script>
 
