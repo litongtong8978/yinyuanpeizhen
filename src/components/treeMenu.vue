@@ -3,6 +3,7 @@
     <el-menu-item v-if="!item.children||item.children.length==0"
     :index="`${props.index}-${item.meta.id}`"
     :key="index"
+    @click="handleClick(item,`${props.index}-${item.meta.id}`)"
     >
       <el-icon size="20">
         <component :is="item.meta.icon"></component>
@@ -26,8 +27,19 @@
   </template>
 </template>
 <script setup>
+import {useRouter} from 'vue-router'
+import {useMenuStore} from "@/store"
+
+const menuStore = useMenuStore()
 const props=defineProps(['menuData','index'])
-console.log(props);
+const router=useRouter()
+const handleClick=(item,active)=>{
+  // console.log(item);
+  menuStore.addMenu(item.meta)
+  router.push(item.meta.path)
+
+}
+
 </script>
 <style lang="less" scoped>
 </style>

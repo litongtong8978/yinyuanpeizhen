@@ -5,6 +5,9 @@ const router = createRouter(
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
       {
+        path: '/login', component: () => import('@/views/login/PageContainer.vue'),
+      },
+      {
         path: '/',
         component: () => import("@/views/layout/LayoutContainer.vue"),
         children: [
@@ -39,25 +42,19 @@ const router = createRouter(
                 path: '',
                 alias: ['staff'],
                 meta: { id: '1', name: '陪护管理', icon: 'Checked', path: '/vppz/staff', describe: '陪护师可以进行创建和修改，设置对应生效状态控制C端选择' },
-                component: () => { import("@/views/vppz/staff/StaffContainer.vue") }
+                component: () => import("@/views/vppz/staff/StaffContainer.vue")
               },
               {
                 path: 'order',
                 meta: { id: '2', name: '订单管理', icon: 'List', path: '/vppz/order', describe: 'C端下单后可以查看所有订单状态，已支付的订单可以完成陪护状态修改' },
-                component: () => { import('@/views/vppz/order/OrderContainer.vue') }
+                component: () => import('@/views/vppz/order/OrderContainer.vue')
               }
             ]
           }
         ]
 
       },
-      {
-        path: '/login', component: () => import('@/views/layout/LayoutContainer.vue'),
 
-      },
-      {
-
-      }
     ]
 
   }
