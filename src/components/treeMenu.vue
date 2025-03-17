@@ -37,9 +37,7 @@ const handleClick=(item,active)=>{
   // console.log(item);
   menuStore.addMenu(item.meta)
   router.push(item.meta.path)
-
 }
-
 </script>
 <style lang="less" scoped>
 </style>

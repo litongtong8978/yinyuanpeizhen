@@ -11,18 +11,29 @@ export const useUserStore = defineStore('user', () => {
 
   const user = ref({})
   const getUser = async () => {
+    user.value = res.data.data
 
   }
   const setUser = (obj) => {
+    user.value = obj
   }
+  const setUserInfo = (obj) => {
+    user.userInfo = obj
 
+  }
+  const removeUserInfo = () => {
+    user.userInfo = {}
+  }
   return {
     token,
     setToken,
     removeToken,
     user,
     getUser,
-    setUser
+    setUser,
+    setUserInfo,
+    removeUserInfo
+
   }
 }, {
   persist: true

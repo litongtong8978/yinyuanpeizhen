@@ -1,9 +1,10 @@
 <script setup>
 import { User, Lock } from '@element-plus/icons-vue'
-import { ref, reactive,onBeforeUnmount } from 'vue'
+import { ref, reactive,onBeforeUnmount} from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import {getCodeService} from "@/api"
+import {getCodeService,authenticationService,loginService} from "@/api"
+import {useUserStore} from '@/store'
 const imgUrl=new URL('../../../public/login-head.png',import.meta.url).href
 const form = ref()
 const timer=ref()
@@ -14,19 +15,26 @@ const countdown=reactive({
 })
 let flag=false
 const formModel = ref({
-  username: '',
-  password: '',
+  userName: '',
+  passWord: '',
   validCode: '',
 })
+const userStore=useUserStore()
+const router = useRouter()
+
+
+// 账号校验规则
 const validateUser = (rule, value, callback) => {
   // 不能为空
   if (value === '') {
-    callback(new Error('请输入密码'))
+    callback(new Error('请输入手机号'))
   } else {
     const reg = /^1[3-9]\d{9}$/
     reg.test(value) ? callback() : callback(new Error('手机号格式不对,请输入正确手机号'))
   }
 }
+
+// 密码校验规则
 const validatePass = (rule, value, callback) => {
   // 不能为空
   if (value === '') {
@@ -37,28 +45,29 @@ const validatePass = (rule, value, callback) => {
   }
   
 }
-
-const rules = {
+const rules = reactive({
   userName: [{ validator: validateUser, trigger: 'blur' }],
   passWord: [{ validator: validatePass, trigger: 'blur' }],
-}
+  // 在rules中添加验证码规则
+   validCode: [
+  { required: true, message: '请输入验证码', trigger: 'blur' },
+  { len: 4, message: '验证码必须为4位', trigger: 'blur' }
+]
+})
 
-
+//判断手机号和验证码是否正确
 const validFn= ()=> {
-      if (!/^1[3-9]\d{9}$/.test(formModel.value.username)) {
+      if (!/^1[3-9]\d{9}$/.test(formModel.value.userName)) {
         ElMessage.error('请输入正确手机号')
         return false
       }
-      // if (/^\w{4}$/.test(formModel.value.validCode)) {
-      //   ElMessage.error('请输入正确验证码')
-      //   return false
-      // }
       return true
 }
+
+
 const countdownChange=()=>{
  if (flag) {return}
  if(validFn()){  
-  
   timer.value = setInterval(() => {
     if (countdown.time <= 0) {
       countdown.validText = '获取验证码'
@@ -72,18 +81,40 @@ const countdownChange=()=>{
   }, 1000)
   flag = true
   console.log('发送短信')}
-  getCodeService({tel:formModel.username}).then(({data})=>{
+  getCodeService({tel:formModel.value.userName}).then(({data})=>{
     console.log(data);
   }
-
-  )
+)
 }
 
-const register=()=>{
-  console.log("1");
+const  register=async()=>{
+  await form.value.validate() //预检验，按钮时检查，没成功不会发请求··········
+  const res=await authenticationService(formModel.value)
+ console.log(res.data);
+ if(res.data.code===10000){
+  ElMessage({
+    message: '注册成功',
+    type: 'success',
+    plain: true,
+  })//预检验，按钮时检查，没成功不会发请求··········
+  
+  isRegister.value = false
 }
-const login=()=>{
-  console.log("2")
+}
+const login=async()=>{
+  await form.value.validate()
+  const res=await loginService(formModel.value)
+  console.log('服务器响应:', res.data)
+  if(res.data.code===10000){
+    userStore.setToken(res.data.data.token)
+    userStore.setUserInfo(res.data.data.userInfo)
+    ElMessage({
+    message: '登录成功',
+    type: 'success',
+    plain: true,
+  })
+    router.push('/dashboard')
+  }
 }
 
 
@@ -113,16 +144,16 @@ onBeforeUnmount(()=>{
         <el-form-item>
           <h1>注册</h1>
         </el-form-item>
-        <el-form-item prop="username">
+        <el-form-item prop="userName">
           <el-input
-            v-model="formModel.username"
+            v-model="formModel.userName"
             :prefix-icon="User"
             placeholder="请输入手机号"
           ></el-input>
         </el-form-item>
-        <el-form-item prop="password">
+        <el-form-item prop="passWord">
           <el-input
-            v-model="formModel.password"
+            v-model="formModel.passWord"
             :prefix-icon="Lock"
             type="password"
             placeholder="请输入密码"
@@ -153,16 +184,16 @@ onBeforeUnmount(()=>{
         <el-form-item>
           <h1>登录</h1>
         </el-form-item>
-        <el-form-item prop="username">
+        <el-form-item prop="userName">
           <el-input
-            v-model="formModel.username"
+            v-model="formModel.userName"
             :prefix-icon="User"
             placeholder="请输入手机号"
           ></el-input>
         </el-form-item>
-        <el-form-item prop="password">
+        <el-form-item prop="passWord">
           <el-input
-            v-model="formModel.password"
+            v-model="formModel.passWord"
             name="password"
             :prefix-icon="Lock"
             type="password"

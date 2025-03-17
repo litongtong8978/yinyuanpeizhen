@@ -10,8 +10,8 @@
         <el-icon size="12">
           <component :is="item.icon"></component>
         </el-icon>
-        <router-link class="text flex-box" to="{path:item.path}"> {{ item.name }}</router-link>
-      <el-icon class="close" size="12" @click="closeTab(item,item)"  >
+        <router-link class="text flex-box" :to="item.path"> {{ item.name }}</router-link>
+      <el-icon class="close" size="12" @click="closeTab(item,index)">
        <Close/>
         </el-icon>
       </li>

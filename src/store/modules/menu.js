@@ -21,4 +21,6 @@ export const useMenuStore = defineStore('menu', () => {
     addMenu,
     closeMenu
   }
+}, {
+  persist: true
 })

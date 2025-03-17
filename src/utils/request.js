@@ -3,18 +3,19 @@ import { useUserStore } from "@/store"
 import { ElMessage } from 'element-plus';
 const http = axios.create({
   // 通用请求的地址前缀
-  baseURL: 'https://wechatopen.mynatapp.cc/v3pz',
-  // baseURL: 'https:/v3pz.itndedu.com/v3pz',
+  // baseURL: 'https://wechatopen.mynatapp.cc/v3pz',
+  baseURL: 'https://v3pz.itndedu.com/v3pz',
 
   timeout: 10000, // 超时时间
 })
 // 添加请求拦截器
+const userStore = useUserStore()
 http.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
-  const userStore = useUserStore()
-  const whiteUrl = ['/get/code', '/user/authentication', '/login']
+
+  const whiteUrl = ['/get/code', '/user/authentication']
   if (userStore.token && !whiteUrl.includes(config.url)) {
-    config.headers['X-token'] = userStore.token
+    config.headers.Authorization = userStore.token
   }
   return config;
 }, function (error) {
@@ -27,6 +28,12 @@ http.interceptors.response.use(function (response) {
   // 2xx 范围内的状态码都会触发该函数。
   // 对响应数据做点什么
   if (response.data.code === -1) {
+    ElMessage.warning(response.data.message)
+  }
+  if (response.data.code === -2) {
+    userStore.removeToken()
+    userStore.removeUserInfo()
+    window.location.href = '/login'
     ElMessage.warning(response.data.message)
   }
   return response;
