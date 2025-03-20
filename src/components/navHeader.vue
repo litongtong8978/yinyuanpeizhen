@@ -6,7 +6,7 @@
         <li v-for="(item,index) in selectMenu" 
         :key="item.path"
         :class="{selected: route.path===item.path}"
-        class="tab flex-box">
+         class="tab flex-box">
         <el-icon size="12">
           <component :is="item.icon"></component>
         </el-icon>

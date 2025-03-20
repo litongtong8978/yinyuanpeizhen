@@ -87,33 +87,61 @@ const countdownChange=()=>{
 )
 }
 
-const  register=async()=>{
-  await form.value.validate() //预检验，按钮时检查，没成功不会发请求··········
-  const res=await authenticationService(formModel.value)
- console.log(res.data);
- if(res.data.code===10000){
-  ElMessage({
-    message: '注册成功',
-    type: 'success',
-    plain: true,
-  })//预检验，按钮时检查，没成功不会发请求··········
-  
-  isRegister.value = false
+const register = async () => {
+  try {
+    await form.value.validate()
+    const res = await authenticationService(formModel.value)
+    console.log('注册响应:', res.data)
+    
+    if(res.data.code === 10000) {
+      const { token, userInfo } = res.data.data
+      // 直接使用原始 token，不添加任何前缀
+      userStore.setToken(token)
+      userStore.setUserInfo(userInfo)
+      
+      ElMessage({
+        message: '注册成功',
+        type: 'success',
+        plain: true,
+      })
+      isRegister.value = false
+    } else {
+      ElMessage.error(res.data.message || '注册失败')
+    }
+  } catch (error) {
+    console.error('注册错误:', error)
+    ElMessage.error('注册失败，请重试')
+  }
 }
-}
-const login=async()=>{
-  await form.value.validate()
-  const res=await loginService(formModel.value)
-  console.log('服务器响应:', res.data)
-  if(res.data.code===10000){
-    userStore.setToken(res.data.data.token)
-    userStore.setUserInfo(res.data.data.userInfo)
-    ElMessage({
-    message: '登录成功',
-    type: 'success',
-    plain: true,
-  })
-    router.push('/dashboard')
+
+const login = async () => {
+  try {
+    await form.value.validate()
+    const res = await loginService(formModel.value)
+    console.log('服务器响应:', res.data)
+    
+    if (res.data.code === 10000) {
+      const { token, userInfo } = res.data.data
+      // 直接使用原始 token，不添加任何前缀
+      userStore.setToken(token)
+      userStore.setUserInfo(userInfo)
+      
+      // 打印调试信息
+      console.log('Token:', token)
+      console.log('UserInfo:', userInfo)
+      
+      ElMessage({
+        message: '登录成功',
+        type: 'success',
+        plain: true,
+      })
+      router.push('/dashboard')
+    } else {
+      ElMessage.error(res.data.message || '登录失败')
+    }
+  } catch (error) {
+    console.error('登录错误:', error)
+    ElMessage.error('登录失败，请重试')
   }
 }
 

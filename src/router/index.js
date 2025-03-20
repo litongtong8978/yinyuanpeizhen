@@ -62,7 +62,8 @@ const router = createRouter(
 )
 
 router.beforeEach((to, from) => {
-  const token = useUserStore().token
+  const userStore = useUserStore()
+  const token = userStore.token
   console.log(token, 'token')
   // 非登陆页面token不存在
   if (to.path !== '/login' && !token) {

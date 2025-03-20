@@ -9,31 +9,27 @@ export const useUserStore = defineStore('user', () => {
     token.value = ''
   }
 
-  const user = ref({})
+  const userInfo = ref({})
   const getUser = async () => {
-    user.value = res.data.data
+    // 这里应该调用获取用户信息的 API
+    // 暂时返回空对象
+    return userInfo.value
+  }
 
-  }
-  const setUser = (obj) => {
-    user.value = obj
-  }
   const setUserInfo = (obj) => {
-    user.userInfo = obj
-
+    userInfo.value = obj
   }
   const removeUserInfo = () => {
-    user.userInfo = {}
+    userInfo.value = {}
   }
   return {
     token,
     setToken,
     removeToken,
-    user,
+    userInfo,
     getUser,
-    setUser,
     setUserInfo,
     removeUserInfo
-
   }
 }, {
   persist: true
